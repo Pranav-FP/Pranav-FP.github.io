@@ -132,7 +132,9 @@
         </table>
         <button type="button" class="btn btn-primary" onclick="checkAllPortals()">Refresh</button>
         <div class="info">
-            Install <a href="https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" target="_blank">this</a> extension to bypass CORS errors.
+            Install <a
+                href="https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf"
+                target="_blank">this</a> extension to bypass CORS errors.
         </div>
     </div>
 
@@ -142,7 +144,7 @@
                 'https://www.financepeer.com/',
                 'https://sales.financepeer.com/',
                 'https://partner.financepeer.com/',
-                'https://leo1.in/',
+                'https://app.leo1.in/',
                 'https://sales.leo1.in/',
                 'https://partner.leo1.in/',
                 'https://impactp2p.com/',
@@ -167,24 +169,33 @@
             const responses = await Promise.all(
                 urls.map(async (url, i) => {
                     try {
-                        const response = await fetch(url);
                         const statusElement = $(statusIds[i]);
-                        console.log(response);
-                        statusElement.text(response.status);
-
-                        if (response.status >= 100 && response.status < 200) {
-                            statusElement.css('color', 'blue')
+                        if (window.fetch) {
+                            // must be chrome or firefox which have native fetch
+                            fetch(url)
+                                .then(function (response) {
+                                    statusElement.text(response.status);
+                                    if (response.status >= 100 && response.status < 200) {
+                                        statusElement.css('color', 'blue')
+                                    }
+                                    else if (response.status >= 200 && response.status < 300) {
+                                        statusElement.css('color', 'green')
+                                    }
+                                    else if (response.status >= 300 && response.status < 400) {
+                                        statusElement.css('color', 'blue')
+                                    }
+                                    else {
+                                        statusElement.css('color', 'red')
+                                    }
+                                })
+                                .catch(function (err) {
+                                    statusElement.text("Server reachable but response could not be fetched (Likely CORS Error)");
+                                    statusElement.css('color', 'orange');
+                                });
+                        } else {
+                            // must be non-updated safari or older IE...
+                            // I don't know how to find error type in this case
                         }
-                        else if (response.status >= 200 && response.status < 300) {
-                            statusElement.css('color', 'green')
-                        }
-                        else if (response.status >= 300 && response.status < 400) {
-                            statusElement.css('color', 'blue')
-                        }
-                        else {
-                            statusElement.css('color', 'red')
-                        }
-
                         return response;
                     }
                     catch (err) {
