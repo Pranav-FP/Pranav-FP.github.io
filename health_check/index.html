@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Health Check</title>
+    <link rel="shortcut icon" href="icons/LEO1.svg" type="image/x-icon">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+    <!-- Latest compiled Bootstrap js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+
+    <!-- Latest compiled and minified Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+</head>
+
+<style>
+    a:link {
+        text-decoration: none;
+    }
+
+    .runner:hover {
+        text-decoration: underline;
+    }
+
+    table {
+        margin-top: 10px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        padding: 5px
+    }
+
+    .btn.btn-primary {
+        margin-top: 10px;
+    }
+
+    .container {
+        margin-left: 5px;
+    }
+
+    .info {
+        margin-top: 5px;
+    }
+</style>
+
+<body>
+
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Portal</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/FP.ico" width="18" height="18"></img>
+                        financepeer.com
+                    </td>
+                    <td id="fpcomstatus"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/FP.ico" width="18" height="18"></img>
+                        sales.financepeer.com
+                    </td>
+                    <td id="fpsalesstatus"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/FP.ico" width="18" height="18"></img>
+                        partner.financepeer.com
+                    </td>
+                    <td id="fppartnerstatus"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/LEO1.svg" width="18" height="18"></img>
+                        leo1.in
+                    </td>
+                    <td id="leo1status"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/LEO1.svg" width="18" height="18"></img>
+                        sales.leo1.in
+                    </td>
+                    <td id="leo1salesstatus"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/LEO1.svg" width="18" height="18"></img>
+                        partner.leo1.in
+                    </td>
+                    <td id="leo1partnerstatus"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/P2P.svg" width="18" height="18"></img>
+                        impactp2p.com
+                    </td>
+                    <td id="p2pstatus"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/P2P.svg" width="18" height="18"></img>
+                        sales.impactp2p.com
+                    </td>
+                    <td id="p2psalesstatus"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/redash.png" width="18" height="18"></img>
+                        redash.financepeer.com
+                    </td>
+                    <td id="redashstatus"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="icons/superset.png" width="18" height="18"></img>
+                        superset.financepeer.com
+                    </td>
+                    <td id="supersetstatus"></td>
+                </tr>
+            </thead>
+        </table>
+        <button type="button" class="btn btn-primary" onclick="checkAllPortals()">Refresh</button>
+        <div class="info">
+            Install <a href="https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" target="_blank">this</a> extension to bypass CORS errors.
+        </div>
+    </div>
+
+    <script>
+        async function checkAllPortals() {
+            const urls = [
+                'https://www.financepeer.com/',
+                'https://sales.financepeer.com/',
+                'https://partner.financepeer.com/',
+                'https://leo1.in/',
+                'https://sales.leo1.in/',
+                'https://partner.leo1.in/',
+                'https://impactp2p.com/',
+                'http://sales.impactp2p.com/',
+                'https://redash.financepeer.com/',
+                'https://superset.financepeer.com/'
+            ];
+
+            const statusIds = [
+                '#fpcomstatus',
+                '#fpsalesstatus',
+                '#fppartnerstatus',
+                '#leo1status',
+                '#leo1salesstatus',
+                '#leo1partnerstatus',
+                '#p2pstatus',
+                '#p2psalesstatus',
+                '#redashstatus',
+                '#supersetstatus'
+            ];
+
+            const responses = await Promise.all(
+                urls.map(async (url, i) => {
+                    try {
+                        const response = await fetch(url);
+                        const statusElement = $(statusIds[i]);
+                        console.log(response);
+                        statusElement.text(response.status);
+
+                        if (response.status >= 100 && response.status < 200) {
+                            statusElement.css('color', 'blue')
+                        }
+                        else if (response.status >= 200 && response.status < 300) {
+                            statusElement.css('color', 'green')
+                        }
+                        else if (response.status >= 300 && response.status < 400) {
+                            statusElement.css('color', 'blue')
+                        }
+                        else {
+                            statusElement.css('color', 'red')
+                        }
+
+                        return response;
+                    }
+                    catch (err) {
+                        const statusElement = $(statusIds[i]);
+                        statusElement.text(err.message);
+                        statusElement.css('color', 'red');
+                        return null;
+                    }
+                })
+            );
+
+            // Do something with the responses, if needed
+        }
+        checkAllPortals();
+    </script>
+
+</body>
+
+</html>
