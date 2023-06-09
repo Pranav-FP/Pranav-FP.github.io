@@ -172,7 +172,7 @@
                         const statusElement = $(statusIds[i]);
                         if (window.fetch) {
                             // must be chrome or firefox which have native fetch
-                            fetch(url)
+                            fetch(url, {method: 'HEAD'})
                                 .then(function (response) {
                                     statusElement.text(response.status);
                                     if (response.status >= 100 && response.status < 200) {
